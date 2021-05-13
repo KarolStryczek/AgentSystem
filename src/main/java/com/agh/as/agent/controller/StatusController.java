@@ -1,8 +1,8 @@
 package com.agh.as.agent.controller;
 
+import com.agh.as.agent.dto.AreaDto;
 import com.agh.as.agent.dto.request.AddAreaForm;
 import com.agh.as.agent.dto.response.HeartBeatResponse;
-import com.agh.as.agent.model.Area;
 import com.agh.as.agent.service.StatusService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,8 @@ public class StatusController {
     }
 
     @GetMapping("/area")
-    public Area getCurrentArea() {
-        return statusService.getArea();
+    public AreaDto getCurrentArea() {
+        return new AreaDto(statusService.getArea());
     }
 
     @PostMapping("/area")
