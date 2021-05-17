@@ -15,8 +15,8 @@ public class MapReader {
     public static List<Node> readCSVMap() {
         log.info("Start reading csv map files");
         String absolute = System.getProperty("user.dir");
-        String nodeFilePath = absolute.concat("/src/main/resources/map/nodes.csv");
-        String branchFilePath = absolute.concat("/src/main/resources/map/branches.csv");
+        String nodeFilePath = absolute.concat("/agent/src/main/resources/map/nodes.csv");
+        String branchFilePath = absolute.concat("/agent/src/main/resources/map/branches.csv");
         List<Node> nodes = new ArrayList<>();
         try (CSVReader csvReader = new CSVReader(new FileReader(nodeFilePath))) {
             String[] values;
