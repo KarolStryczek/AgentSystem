@@ -22,6 +22,8 @@ public class StatusService {
 
     @Value("${instance.id}")
     Integer instanceId;
+    @Value("${instance.host}")
+    String instanceHost;
 
     final AreaRepo areaRepo;
     final RoutsCache routsCache;
@@ -34,8 +36,8 @@ public class StatusService {
     public HeartBeatResponse getCurrentStatus() {
         Area currentArea = getArea();
         log.info("Get current status for agent [{}]", Objects.isNull(currentArea) ? "FREE" : currentArea.getId().toString());
-        if (Objects.isNull(currentArea)) return new HeartBeatResponse("up", instanceId);
-        else return new HeartBeatResponse("up", currentArea.getId(), instanceId);
+        if (Objects.isNull(currentArea)) return new HeartBeatResponse("up", instanceId, instanceHost);
+        else return new HeartBeatResponse("up", currentArea.getId(), instanceId, instanceHost);
     }
 
     public Area getArea() {

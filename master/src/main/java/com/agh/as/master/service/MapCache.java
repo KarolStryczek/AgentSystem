@@ -3,6 +3,7 @@ package com.agh.as.master.service;
 import com.agh.as.master.model.Map;
 import com.agh.as.master.model.Node;
 import com.agh.as.master.utils.AStar;
+import com.agh.as.master.utils.AreaAllocator;
 import com.agh.as.master.utils.MapReader;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +20,16 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MapCache {
 
+    AreaAllocator areaAllocator;
+
     @Cacheable("map")
     public Map getMap(String startStop){
-        if (startStop.equals("all"))
+        if (startStop.equals("alloc")) {
+            return areaAllocator.allocateAreas();
+        } if (startStop.equals("all")) {
             return new Map(MapReader.readCSVMap());
-        else
+        } else {
             return new Map(AStar.getRoute("a", "b"));
+        }
     }
 }

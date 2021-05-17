@@ -1,11 +1,15 @@
 package com.agh.as.master.controller;
 
 
+import com.agh.as.master.dto.request.RegisterAgentForm;
+import com.agh.as.master.service.RunningAgentsService;
 import lombok.AccessLevel;
+import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 
@@ -15,11 +19,11 @@ import javax.validation.Valid;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AgentController {
 
-    @GetMapping("/register")
+    RunningAgentsService runningAgentsService;
+
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerInstance(){
-
+    public Mono<Void> registerInstance(@Valid @RequestBody RegisterAgentForm registerAgentForm){
+        return runningAgentsService.registerInstance(registerAgentForm).then();
     }
-
-
 }
