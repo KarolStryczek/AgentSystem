@@ -14,13 +14,16 @@ import java.util.List;
 public class Branch {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Integer id;
+
+    @Setter
     Float cost;
 
     @ManyToMany(mappedBy = "branches", cascade = CascadeType.ALL)
     List<Node> nodes;
 
-    public Branch(Integer id) {
-        this.id = id;
+    public Branch(String cost) {
+        this.cost = Float.valueOf(cost);
     }
 }

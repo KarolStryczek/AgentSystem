@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
@@ -18,7 +19,9 @@ public class AreaDto {
     List<NodeDto> nodes;
 
     public AreaDto(Area area) {
-        this.id = area.getId();
-        this.nodes = area.getNodes().stream().map(NodeDto::new).collect(Collectors.toList());
+        if (!Objects.isNull(area)) {
+            this.id = area.getId();
+            this.nodes = area.getNodes().stream().map(NodeDto::new).collect(Collectors.toList());
+        }
     }
 }
