@@ -10,13 +10,16 @@ public class HeartBeatResponse {
 
     String status;
     Integer areaId;
+    Integer instanceId;
 
-    public HeartBeatResponse(String status) {
+    public HeartBeatResponse(String status, Integer instanceId) {
         this.status = status;
+        this.instanceId = instanceId;
     }
 
-    public HeartBeatResponse(String status, Integer areaId) {
+    public HeartBeatResponse(String status, Integer areaId, Integer instanceId) {
         this.status = status;
         this.areaId = areaId;
+        this.instanceId = instanceId;
     }
 }

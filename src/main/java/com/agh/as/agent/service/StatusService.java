@@ -6,9 +6,9 @@ import com.agh.as.agent.model.Area;
 import com.agh.as.agent.model.Node;
 import com.agh.as.agent.repo.AreaRepo;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,18 +17,25 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class StatusService {
 
-    AreaRepo areaRepo;
-    RoutsCache routsCache;
+    @Value("${instance.id}")
+    Integer instanceId;
+
+    final AreaRepo areaRepo;
+    final RoutsCache routsCache;
+
+    public StatusService(AreaRepo areaRepo, RoutsCache routsCache) {
+        this.areaRepo = areaRepo;
+        this.routsCache = routsCache;
+    }
 
     public HeartBeatResponse getCurrentStatus() {
         Area currentArea = getArea();
         log.info("Get current status for agent [{}]", Objects.isNull(currentArea) ? "FREE" : currentArea.getId().toString());
-        if (Objects.isNull(currentArea)) return new HeartBeatResponse("up");
-        else return new HeartBeatResponse("up", currentArea.getId());
+        if (Objects.isNull(currentArea)) return new HeartBeatResponse("up", instanceId);
+        else return new HeartBeatResponse("up", currentArea.getId(), instanceId);
     }
 
     public Area getArea() {
