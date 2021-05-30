@@ -23,6 +23,6 @@ public class RoutsCache {
         if (startStop.equals("all"))
             return MapReader.readCSVMap();
         else
-            return AStar.getRoute("a", "b");
+            return null;
     }
 }
