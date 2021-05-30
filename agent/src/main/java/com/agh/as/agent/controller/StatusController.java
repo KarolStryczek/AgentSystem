@@ -44,17 +44,4 @@ public class StatusController {
     public void addAreaToAgent(@Valid @RequestBody AddAreaForm addAreaForm) {
         statusService.setArea(addAreaForm);
     }
-
-    @GetMapping("/test/start/{startI}/target/{targetI}")
-    public List<NodeDto> test(@PathVariable int startI, @PathVariable int targetI) {
-//        AddAreaForm addAreaForm = new AddAreaForm();
-//        addAreaForm.setId(1);
-//        addAreaForm.setNodes(Arrays.asList(1,2,3,4,5,6,7,8,9));
-//        statusService.setArea(addAreaForm);
-        List<Node> nodes = statusService.getArea().getNodes();
-        Node start = nodes.get(startI);
-        Node target = nodes.get(targetI);
-        return AStar.aStar(start, target).stream().map(NodeDto::new).collect(Collectors.toList());
-    }
-
 }
