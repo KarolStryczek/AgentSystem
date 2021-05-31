@@ -2,7 +2,9 @@ package com.agh.as.master.controller;
 
 
 import com.agh.as.master.dto.request.RegisterAgentForm;
+import com.agh.as.master.dto.request.UpdateRouteForm;
 import com.agh.as.master.model.AgentInstance;
+import com.agh.as.master.service.RoutingService;
 import com.agh.as.master.service.RunningAgentsService;
 import com.agh.as.master.utils.LogUtils;
 import lombok.AccessLevel;
@@ -21,11 +23,18 @@ import javax.validation.Valid;
 public class AgentController {
 
     RunningAgentsService runningAgentsService;
+    RoutingService routingService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<AgentInstance> registerInstance(@Valid @RequestBody RegisterAgentForm registerAgentForm){
         LogUtils.logGetRequestBody("registerInstance", registerAgentForm);
         return runningAgentsService.registerInstance(registerAgentForm);
+    }
+
+    @PostMapping("/route/finish")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> setFinalRoute(@RequestBody UpdateRouteForm updateRouteForm) {
+        return routingService.updateRouteFinally(updateRouteForm).then();
     }
 }

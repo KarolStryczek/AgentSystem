@@ -31,10 +31,4 @@ public class RouteController {
     public Mono<RouteData> startCreatingRoute(@RequestBody CreateRouteForm createRouteForm) {
         return routingService.startCreatingRoute(createRouteForm);
     }
-
-    @PostMapping("/route/finish")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> setFinalRoute(@RequestBody UpdateRouteForm updateRouteForm) {
-        return routingService.updateRouteFinally(updateRouteForm).then();
-    }
 }
