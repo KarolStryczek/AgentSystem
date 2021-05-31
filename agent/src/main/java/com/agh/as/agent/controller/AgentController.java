@@ -1,6 +1,5 @@
 package com.agh.as.agent.controller;
 
-import com.agh.as.agent.dto.NodeDto;
 import com.agh.as.agent.dto.request.RegisterRouteForm;
 import com.agh.as.agent.dto.request.UpdateRouteForm;
 import com.agh.as.agent.service.RoutesService;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Slf4j
 @RestController
