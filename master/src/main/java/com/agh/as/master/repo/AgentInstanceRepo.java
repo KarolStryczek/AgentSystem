@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface AgentInstanceRepo extends ReactiveMongoRepository<AgentInstance, String> {
     Flux<AgentInstance> findAllByAreaIsNull();
+    Flux<AgentInstance> findAllByAreaIsNotNull();
     Mono<AgentInstance> findByArea_Nodes_IdContains(Integer nodeId);
 
 }

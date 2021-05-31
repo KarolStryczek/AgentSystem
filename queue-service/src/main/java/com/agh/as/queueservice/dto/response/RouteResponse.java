@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 
 @Getter
 @AllArgsConstructor
@@ -18,10 +20,12 @@ public class RouteResponse {
     String id;
     Node current;
     Node target;
+    List<Node> currentRoute;
 
     public RouteResponse(Route route) {
         this.id = route.getId();
         this.current = route.getCurrent();
         this.target = route.getTarget();
+        this.currentRoute = route.getCurrentRoute();
     }
 }

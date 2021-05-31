@@ -1,8 +1,11 @@
 package com.agh.as.agent.dto.response;
 
+import com.agh.as.agent.dto.NodeDto;
 import com.agh.as.agent.model.Node;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 
 @Getter
@@ -14,4 +17,5 @@ public class RouteResponse {
     String id;
     Node current;
     Node target;
+    List<NodeDto> currentRoute;
 }

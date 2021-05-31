@@ -72,7 +72,14 @@ public class RunningAgentsService {
     }
 
     Mono<AgentInstance> getAgentForNode(Integer start) {
-        return agentInstanceRepo.findByArea_Nodes_IdContains(start);
+        return agentInstanceRepo.findAllByAreaIsNotNull().collectList().flatMap(agentList -> {
+            for (AgentInstance agent: agentList) {
+                if (agent.getArea().getNodes().stream().anyMatch(node -> node.getId().equals(start))) {
+                    return Mono.just(agent);
+                }
+            }
+            return Mono.empty();
+        });
     }
 
     @Scheduled(fixedDelay = 5000)
@@ -86,12 +93,13 @@ public class RunningAgentsService {
 
     private Mono<Void> setAreasToAgents(List<Area> areaList) {
         log.info("Start allocating agents to areas [{}]", areaList.toString());
-
-
         return getRunningAgentInstances().collectList().flatMap(agentList -> assignAreasToAgents(areaList, agentList));
     }
 
     private Mono<Void> assignAreasToAgents(List<Area> areaList, List<AgentInstance> agentList) {
+        if (agentList.stream().filter(agent -> agent.getArea() != null).count() >= minRunningAgents) {
+            return Mono.empty();
+        }
         List<AddAreaForm> addAreaForms = new ArrayList<>();
         for (Area area: areaList) {
             AddAreaForm areaForm = new AddAreaForm();
@@ -111,9 +119,17 @@ public class RunningAgentsService {
         }
         return Flux.fromIterable(addAreaForms)
                 .doOnNext(addAreaForm -> {
-                    String host = agentList.stream().filter(agent -> agent.getInstanceId().equals(addAreaForm.getId())).findFirst().get().getInstanceHost();
-                    agentConsumer.setArea(host, addAreaForm).subscribe();
+                    AgentInstance agentInstance = agentList.stream().filter(agent -> agent.getInstanceId().equals(addAreaForm.getId())).findFirst().get();
+                    agentConsumer.setArea(agentInstance.getInstanceHost(), addAreaForm).subscribe();
+                    setAgentArea(agentInstance, areaList.stream().filter(a -> a.getAreaId().equals(addAreaForm.getId())).findFirst().get());
                 }).then();
+    }
+
+    private void setAgentArea(AgentInstance agent, Area area) {
+        agent.setArea(area);
+        agentInstanceRepo.save(agent)
+                .doOnSuccess(LogUtils::logUpdateEntity)
+                .subscribe();
     }
 
 }

@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,7 +55,7 @@ public class RoutesService {
 
     public List<NodeDto> startRoute(RegisterRouteForm form) {
         queueConsumer.registerRoute(form);
-        return processRoute(form.getId(), form.getStartNode(), form.getTargetNode());
+        return processRoute(form.getId(), form.getStartNode(), form.getTargetNode(), new ArrayList<>());
     }
 
 
@@ -64,12 +66,12 @@ public class RoutesService {
         if (!Objects.isNull(area)){
             RouteResponse newRouteToCalculate = queueConsumer.getNewRouteToCalculate();
             if (!Objects.isNull(newRouteToCalculate) && StringUtils.hasLength(newRouteToCalculate.getId())) {
-                processRoute(newRouteToCalculate.getId(), newRouteToCalculate.getCurrent().getId(), newRouteToCalculate.getTarget().getId());
+                processRoute(newRouteToCalculate.getId(), newRouteToCalculate.getCurrent().getId(), newRouteToCalculate.getTarget().getId(), newRouteToCalculate.getCurrentRoute());
             }
         }
     }
 
-    private List<NodeDto> processRoute(String routeId, Integer startNode, Integer targetNode) {
+    private List<NodeDto> processRoute(String routeId, Integer startNode, Integer targetNode, List<NodeDto> currentRoute) {
         List<Node> nodes = statusService.getArea().getNodes();
         Node start = nodes.get(startNode-1);
         Node target = nodes.get(targetNode-1);
@@ -79,7 +81,13 @@ public class RoutesService {
         Optional<Node> targetInRoute = routeInAgentArea.stream().filter(node -> node.getId().equals(target.getId())).findAny();
         UpdateCreatingRouteForm updateCreatingRouteForm = null;
         if (targetInRoute.isPresent()){
-            FinalRouteForm finalRouteForm = new FinalRouteForm(routeId, routeInAgentAreaDto);
+            List<NodeDto> finalRoute = new ArrayList<>(currentRoute);
+            for (NodeDto node: routeInAgentAreaDto) {
+                if (currentRoute.stream().noneMatch(n -> n.getId().equals(node.getId()))) {
+                    finalRoute.add(node);
+                }
+            }
+            FinalRouteForm finalRouteForm = new FinalRouteForm(routeId, finalRoute);
             updateCreatingRouteForm = new UpdateCreatingRouteForm(routeId, routeInAgentAreaDto, null);
             masterConsumer.setFinalRoute(finalRouteForm);
         } else {

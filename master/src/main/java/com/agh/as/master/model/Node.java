@@ -1,18 +1,19 @@
 package com.agh.as.master.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @ToString
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Node {
 
     Integer id;
     Float x;
     Float y;
-    Integer areaNeighbour;
 
     public Node(String [] values) {
         this.id = Integer.valueOf(values[0]);
