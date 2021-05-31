@@ -1,6 +1,7 @@
 package com.agh.as.queueservice.controller;
 
 import com.agh.as.queueservice.dto.response.RouteResponse;
+import com.agh.as.queueservice.model.Route;
 import com.agh.as.queueservice.service.RouteService;
 import com.agh.as.queueservice.utils.LogUtils;
 import lombok.AccessLevel;
@@ -23,6 +24,6 @@ public class NotifyController {
     @GetMapping("/agent/{id}/id")
     public Mono<RouteResponse> getRoutesForAgents(@PathVariable Integer id) {
         LogUtils.logGetController("getRoutesForAgents", "agentId", id.toString());
-        return routeService.getRouteForAgent(id).map(RouteResponse::new);
+        return routeService.getRouteForAgent(id).onErrorReturn(new Route()).map(RouteResponse::new);
     }
 }

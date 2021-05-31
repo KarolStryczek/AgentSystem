@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface RouteRepo extends ReactiveMongoRepository<Route, String> {
 
-    Flux<Route> findByCurrentAgentOrderByCreatedAtAsc(Integer id);
+    Flux<Route> findByCurrentAgentAndIsProcessedFalseOrderByCreatedAtAsc(Integer id);
     Flux<Route> findAllByCurrentAgentNotNull();
 }

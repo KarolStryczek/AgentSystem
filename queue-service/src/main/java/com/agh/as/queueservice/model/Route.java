@@ -1,5 +1,6 @@
 package com.agh.as.queueservice.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
@@ -27,4 +28,11 @@ public class Route {
     Node current;
     Node target;
     Integer currentAgent;
+    Boolean isProcessed;
+
+    public void addNodeToRoute(Node node) {
+        if (!this.currentRoute.contains(node)) {
+            this.currentRoute.add(node);
+        }
+    }
 }

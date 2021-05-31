@@ -11,4 +11,13 @@ import lombok.experimental.FieldDefaults;
 public class Node {
 
     Integer id;
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Node))
+            return false;
+        Node node = (Node) obj;
+        return (this.id.equals(node.getId()));
+    }
 }
