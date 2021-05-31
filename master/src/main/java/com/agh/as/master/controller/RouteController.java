@@ -2,9 +2,11 @@ package com.agh.as.master.controller;
 
 import com.agh.as.master.dto.request.UpdateAgentRouteForm;
 import com.agh.as.master.dto.request.CreateRouteForm;
+import com.agh.as.master.model.Area;
 import com.agh.as.master.model.Node;
 import com.agh.as.master.model.RouteData;
 import com.agh.as.master.service.RoutingService;
+import com.agh.as.master.utils.AreaAllocator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,5 +40,10 @@ public class RouteController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> updateRouteInAgent(@RequestBody UpdateAgentRouteForm form) {
         return routingService.updateRouteInAgent(form);
+    }
+
+    @GetMapping("/route/test")
+    public Mono<List<Area>> test() {
+        return Mono.just(AreaAllocator.getAreasFormConfig());
     }
 }

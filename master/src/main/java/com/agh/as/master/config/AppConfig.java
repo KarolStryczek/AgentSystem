@@ -24,14 +24,12 @@ import java.util.Objects;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AppConfig {
 
-    MapCache mapCache;
     AgentConsumer agentConsumer;
     RunningAgentsService runningAgentsService;
 
     @PostConstruct
     public void setMapAndAllocateAreas() {
         runningAgentsService.deleteAll().subscribe();
-        mapCache.getMap("alloc");
     }
 
     @Scheduled(fixedDelay = 10000)

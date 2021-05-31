@@ -20,13 +20,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MapCache {
 
-    AreaAllocator areaAllocator;
-
     @Cacheable("map")
     public Map getMap(String startStop){
-        if (startStop.equals("alloc")) {
-            return areaAllocator.allocateAreas();
-        } if (startStop.equals("all")) {
+        if (startStop.equals("all")) {
             return new Map(MapReader.readCSVMap());
         } else {
             return new Map(AStar.getRoute("a", "b"));

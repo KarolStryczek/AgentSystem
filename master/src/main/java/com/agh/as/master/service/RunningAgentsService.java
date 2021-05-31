@@ -1,24 +1,37 @@
 package com.agh.as.master.service;
 
+import com.agh.as.master.consumer.AgentConsumer;
+import com.agh.as.master.dto.consumer.AddAreaForm;
 import com.agh.as.master.dto.request.RegisterAgentForm;
 import com.agh.as.master.model.AgentInstance;
+import com.agh.as.master.model.Area;
 import com.agh.as.master.repo.AgentInstanceRepo;
+import com.agh.as.master.utils.AreaAllocator;
 import com.agh.as.master.utils.LogUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RunningAgentsService {
 
-    AgentInstanceRepo agentInstanceRepo;
+    @Value("${min.agent.num}")
+    Integer minRunningAgents;
+
+    final AgentInstanceRepo agentInstanceRepo;
+    final AgentConsumer agentConsumer;
 
     public Mono<AgentInstance> registerInstance(RegisterAgentForm form) {
         AgentInstance agentInstance = new AgentInstance(form.getInstanceId(), form.getHost());
@@ -59,6 +72,21 @@ public class RunningAgentsService {
         return agentInstanceRepo.findByArea_Nodes_IdContains(start);
     }
 
+    @Scheduled(fixedDelay = 5000)
+    public void allocateAreas() {
+        List<Area> allocatedAreas = AreaAllocator.getAreasFormConfig();
+
+        getRunningAgentInstances().count()
+                .filter(count -> count >= minRunningAgents)
+                .flatMap(ignored -> setAreasToAgents(allocatedAreas)).subscribe();
+    }
+
+    private Mono<Void> setAreasToAgents(List<Area> areaList) {
+        log.info("Start allocating agents to areas [{}]", areaList.toString());
+        List<AddAreaForm> addAreaForms = new ArrayList<>();
+
+        return getRunningAgentInstances().
+    }
 
 
 
