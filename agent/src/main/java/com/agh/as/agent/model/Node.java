@@ -23,6 +23,7 @@ public class Node implements Comparable<Node> {
     Integer id;
     Float x;
     Float y;
+    Boolean isInThisAgent;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -32,14 +33,13 @@ public class Node implements Comparable<Node> {
     )
     List<Branch> branches;
 
+    public double h;
 
-    private static int idCounter = 0;
+
     @Transient
     public double f = Double.MAX_VALUE;
     @Transient
     public double g = Double.MAX_VALUE;
-    @Transient
-    public double h;
     @Transient
     public Node parent = null;
 
@@ -48,12 +48,10 @@ public class Node implements Comparable<Node> {
         this.id = Integer.valueOf(values[0]);
         this.x = Float.valueOf(values[1]);
         this.y = Float.valueOf(values[2]);
+        this.h = 2;
+        this.isInThisAgent = false;
     }
 
-    public Node(double h){
-        this.h = h;
-        this.id = idCounter++;
-    }
 
     public void addBranch(Branch branch) {
         if (Objects.isNull(this.branches)) this.branches = new LinkedList<>();

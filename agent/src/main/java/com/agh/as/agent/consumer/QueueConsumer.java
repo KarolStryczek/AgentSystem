@@ -1,6 +1,8 @@
 package com.agh.as.agent.consumer;
 
 import com.agh.as.agent.dto.request.RegisterInMasterForm;
+import com.agh.as.agent.dto.request.RegisterRouteForm;
+import com.agh.as.agent.dto.request.UpdateCreatingRouteForm;
 import com.agh.as.agent.dto.response.RouteResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,24 @@ public class QueueConsumer extends RestTemplate {
         String url = String.format("%s/queue/notify/agent/%s/id", queueHost, instanceId);
         try {
             getForEntity(url, RouteResponse.class);
+        } catch (RestClientException e) {
+            log.error("Error while connecting to queue with stack \n [{}]", (Object) e.getStackTrace());
+        }
+    }
+
+    public void registerRoute(RegisterRouteForm form) {
+        String url = String.format("%s/queue/route/register", queueHost);
+        try {
+            postForEntity(url, form, Void.class);
+        } catch (RestClientException e) {
+            log.error("Error while connecting to queue with stack \n [{}]", (Object) e.getStackTrace());
+        }
+    }
+
+    public void updateRoute(UpdateCreatingRouteForm form) {
+        String url = String.format("%s/queue/route/update", queueHost);
+        try {
+            postForEntity(url, form, Void.class);
         } catch (RestClientException e) {
             log.error("Error while connecting to queue with stack \n [{}]", (Object) e.getStackTrace());
         }

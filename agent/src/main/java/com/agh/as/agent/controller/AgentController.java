@@ -1,5 +1,7 @@
 package com.agh.as.agent.controller;
 
+import com.agh.as.agent.dto.NodeDto;
+import com.agh.as.agent.dto.request.RegisterRouteForm;
 import com.agh.as.agent.dto.request.UpdateRouteForm;
 import com.agh.as.agent.service.RoutesService;
 import lombok.AccessLevel;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -27,6 +30,11 @@ public class AgentController extends GenericController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateGivenRoute(@RequestBody @Valid UpdateRouteForm updateRouteForm){
         routesService.updateRoute(updateRouteForm);
+    }
+
+    @PostMapping("/route/start")
+    public List<NodeDto> startCalculateRoute(@RequestBody RegisterRouteForm form){
+        return routesService.startRoute(form);
     }
 
 }

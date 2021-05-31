@@ -51,8 +51,8 @@ public class StatusService {
         if (!Objects.isNull(currentArea)) areaRepo.delete(currentArea);
 
         List<Node> map = routsCache.getMap("all");
-        List<Node> nodeInArea = addAreaForm.getNodes().stream().map(id -> map.get(id-1)).collect(Collectors.toList());
-        Area test = new Area(addAreaForm.getId(), nodeInArea);
+        map.stream().filter(node -> addAreaForm.getNodes().contains(node.getId())).forEach(areaNode -> areaNode.setIsInThisAgent(true));
+        Area test = new Area(addAreaForm.getId(), map);
         Area savedArea = areaRepo.save(test);
         log.info("Set area for this agent to: [{}]", savedArea);
     }
