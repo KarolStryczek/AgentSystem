@@ -24,8 +24,9 @@ public class Node implements Comparable<Node> {
     Float x;
     Float y;
     Boolean isInThisAgent;
+    Integer neighborAgent;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "node_branch",
             joinColumns = @JoinColumn(name = "node_id"),
@@ -65,5 +66,9 @@ public class Node implements Comparable<Node> {
 
     public double calculateHeuristic(Node target){
         return this.h;
+    }
+
+    public boolean isOnBoarder() {
+        return !Objects.isNull(this.neighborAgent);
     }
 }

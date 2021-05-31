@@ -20,7 +20,7 @@ public class Branch {
     @Setter
     Float cost;
 
-    @ManyToMany(mappedBy = "branches", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "branches", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Node> nodes;
 
     public Branch(String cost) {

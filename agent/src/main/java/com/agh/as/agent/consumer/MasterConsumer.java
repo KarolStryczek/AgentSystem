@@ -33,11 +33,12 @@ public class MasterConsumer extends RestTemplate {
 
     public void setFinalRoute(FinalRouteForm form) {
         String url = String.format("%s/agent/route/finish", masterHost);
-        try {
-            postForEntity(url, form, Void.class);
-        } catch (RestClientException e) {
-            log.error("Error while connecting to master with stack \n [{}]", (Object) e.getStackTrace());
-        }
+        log.info("Send final route to master [{}]", form.toString());
+//        try {
+//            postForEntity(url, form, Void.class);
+//        } catch (RestClientException e) {
+//            log.error("Error while connecting to master with stack \n [{}]", (Object) e.getStackTrace());
+//        }
     }
 
 }

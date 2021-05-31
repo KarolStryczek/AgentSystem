@@ -6,6 +6,7 @@ import com.agh.as.agent.dto.request.AddAreaForm;
 import com.agh.as.agent.dto.request.UpdateRouteForm;
 import com.agh.as.agent.dto.response.HeartBeatResponse;
 import com.agh.as.agent.model.Node;
+import com.agh.as.agent.service.RoutesService;
 import com.agh.as.agent.service.StatusService;
 import com.agh.as.agent.utils.AStar;
 import lombok.AccessLevel;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class StatusController {
 
     StatusService statusService;
+    RoutesService routesService;
 
     @GetMapping("/beat")
     public HeartBeatResponse heartBeat() {
@@ -43,5 +45,10 @@ public class StatusController {
     @ResponseStatus(HttpStatus.CREATED)
     public void addAreaToAgent(@Valid @RequestBody AddAreaForm addAreaForm) {
         statusService.setArea(addAreaForm);
+    }
+
+    @GetMapping("/test")
+    public void test() {
+        routesService.updateNextRoute();
     }
 }

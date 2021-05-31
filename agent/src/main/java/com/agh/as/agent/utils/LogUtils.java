@@ -29,5 +29,8 @@ public class LogUtils {
     public static void logGetResponseFrom(String serviceName, Object entity) {
         log.info("Get response {} {}", kv("serviceName", serviceName), f(entity));
     }
+    public static void logSendSuccessfullyRequest(String serviceName, Object entity) {
+        log.info("Send successfully to {}  request {}", kv("serviceName", serviceName), f(entity));
+    }
 
 }

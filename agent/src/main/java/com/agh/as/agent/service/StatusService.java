@@ -1,5 +1,6 @@
 package com.agh.as.agent.service;
 
+import com.agh.as.agent.dto.NeighborDto;
 import com.agh.as.agent.dto.request.AddAreaForm;
 import com.agh.as.agent.dto.response.HeartBeatResponse;
 import com.agh.as.agent.model.Area;
@@ -9,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,6 +54,7 @@ public class StatusService {
 
         List<Node> map = routsCache.getMap("all");
         map.stream().filter(node -> addAreaForm.getNodes().contains(node.getId())).forEach(areaNode -> areaNode.setIsInThisAgent(true));
+        addAreaForm.getNeighbors().forEach(neighbor -> map.get(neighbor.getNodeId()-1).setNeighborAgent(neighbor.getAgentId()));
         Area test = new Area(addAreaForm.getId(), map);
         Area savedArea = areaRepo.save(test);
         log.info("Set area for this agent to: [{}]", savedArea);

@@ -4,12 +4,14 @@ import com.agh.as.agent.model.Node;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@ToString
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NodeDto {

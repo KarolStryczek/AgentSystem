@@ -7,6 +7,8 @@ import com.agh.as.agent.dto.request.FinalRouteForm;
 import com.agh.as.agent.dto.request.RegisterRouteForm;
 import com.agh.as.agent.dto.request.UpdateCreatingRouteForm;
 import com.agh.as.agent.dto.request.UpdateRouteForm;
+import com.agh.as.agent.dto.response.RouteResponse;
+import com.agh.as.agent.model.Area;
 import com.agh.as.agent.model.Node;
 import com.agh.as.agent.repo.BranchRepo;
 import com.agh.as.agent.repo.NodeRepo;
@@ -15,9 +17,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -47,22 +53,41 @@ public class RoutesService {
 
     public List<NodeDto> startRoute(RegisterRouteForm form) {
         queueConsumer.registerRoute(form);
-        List<Node> nodes = statusService.getArea().getNodes();
-        Node start = nodes.get(form.getStartNode()-1);
-        Node target = nodes.get(form.getTargetNode()-1);
-        List<Node> route = AStar.aStar(start, target);
-        List<NodeDto> routeInAgentArea = route.stream().filter(Node::getIsInThisAgent).map(NodeDto::new).collect(Collectors.toList());
-        Optional<NodeDto> targetInRoute = routeInAgentArea.stream().filter(node -> node.getId().equals(form.getTargetNode())).findAny();
-        if (targetInRoute.isPresent()){
-            FinalRouteForm finalRouteForm = new FinalRouteForm(form.getId(), routeInAgentArea);
-            masterConsumer.setFinalRoute(finalRouteForm);
-        } else {
-            UpdateCreatingRouteForm updateCreatingRouteForm = new UpdateCreatingRouteForm(form.getId(), routeInAgentArea, 2);
-            queueConsumer.updateRoute(updateCreatingRouteForm);
-        }
-
-        return routeInAgentArea;
+        return processRoute(form.getId(), form.getStartNode(), form.getTargetNode());
     }
 
+
+    @Transactional
+    @Scheduled(fixedDelay = 5000)
+    public void updateNextRoute() {
+        Area area = statusService.getArea();
+        if (!Objects.isNull(area)){
+            RouteResponse newRouteToCalculate = queueConsumer.getNewRouteToCalculate();
+            if (!Objects.isNull(newRouteToCalculate) && StringUtils.hasLength(newRouteToCalculate.getId())) {
+                processRoute(newRouteToCalculate.getId(), newRouteToCalculate.getCurrent().getId(), newRouteToCalculate.getTarget().getId());
+            }
+        }
+    }
+
+    private List<NodeDto> processRoute(String routeId, Integer startNode, Integer targetNode) {
+        List<Node> nodes = statusService.getArea().getNodes();
+        Node start = nodes.get(startNode-1);
+        Node target = nodes.get(targetNode-1);
+        List<Node> route = AStar.aStar(start, target);
+        List<Node> routeInAgentArea = route.stream().filter(Node::getIsInThisAgent).collect(Collectors.toList());
+        List<NodeDto> routeInAgentAreaDto = routeInAgentArea.stream().map(NodeDto::new).collect(Collectors.toList());
+        Optional<Node> targetInRoute = routeInAgentArea.stream().filter(node -> node.getId().equals(target.getId())).findAny();
+        UpdateCreatingRouteForm updateCreatingRouteForm = null;
+        if (targetInRoute.isPresent()){
+            FinalRouteForm finalRouteForm = new FinalRouteForm(routeId, routeInAgentAreaDto);
+            updateCreatingRouteForm = new UpdateCreatingRouteForm(routeId, routeInAgentAreaDto, null);
+            masterConsumer.setFinalRoute(finalRouteForm);
+        } else {
+            Node neighbourNode = routeInAgentArea.get(routeInAgentArea.size() - 1);
+             updateCreatingRouteForm = new UpdateCreatingRouteForm(routeId, routeInAgentAreaDto, neighbourNode.getNeighborAgent());
+        }
+        queueConsumer.updateRoute(updateCreatingRouteForm);
+        return routeInAgentAreaDto;
+    }
 
 }

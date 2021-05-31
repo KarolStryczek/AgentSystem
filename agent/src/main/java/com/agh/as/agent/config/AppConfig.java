@@ -8,10 +8,13 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.PostConstruct;
 
 @Configuration
+@EnableScheduling
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AppConfig {
@@ -22,6 +25,7 @@ public class AppConfig {
     public void registerPresence() {
         masterConsumer.registerPresence();
     }
+
 
 
 
