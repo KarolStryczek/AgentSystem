@@ -1,14 +1,18 @@
 package com.agh.as.master.service;
 
+import com.agh.as.master.consumer.AgentConsumer;
 import com.agh.as.master.dto.request.CreateRouteForm;
+import com.agh.as.master.dto.request.UpdateRouteForm;
 import com.agh.as.master.model.Map;
 import com.agh.as.master.model.Node;
 import com.agh.as.master.model.RouteData;
 import com.agh.as.master.repo.RouteRepo;
+import com.agh.as.master.utils.LogUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.route.Route;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,6 +28,7 @@ public class RoutingService {
 
     MapCache mapCache;
     RouteRepo routeRepo;
+    AgentConsumer agentConsumer;
 
 
     public Mono<RouteData> startCreatingRoute(CreateRouteForm form) {
@@ -52,5 +57,12 @@ public class RoutingService {
         return routeRepo.findById(id)
                 .filter(routeData -> !Objects.isNull(routeData.getResult()) && !routeData.getResult().isEmpty())
                 .flatMapMany(routeData -> Flux.fromIterable(routeData.getResult()));
+    }
+
+    public Mono<RouteData> updateRouteFinally(UpdateRouteForm form) {
+        return routeRepo.findById(form.getId())
+                .doOnSuccess(route -> route.setResult(form.getFinalRoute()))
+                .flatMap(routeRepo::save)
+                .doOnSuccess(LogUtils::logUpdateEntity);
     }
 }

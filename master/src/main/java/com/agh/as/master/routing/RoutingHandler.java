@@ -11,7 +11,8 @@ public class RoutingHandler {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("agent", r -> r.path("/agent/api/**")
+                .route("agent", r ->
+                        r.path("/agent/api/**")
                         .uri("http://localhost:8081"))
                 .build();
     }
