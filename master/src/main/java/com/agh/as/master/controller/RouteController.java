@@ -1,7 +1,7 @@
 package com.agh.as.master.controller;
 
+import com.agh.as.master.dto.request.UpdateAgentRouteForm;
 import com.agh.as.master.dto.request.CreateRouteForm;
-import com.agh.as.master.dto.request.UpdateRouteForm;
 import com.agh.as.master.model.Node;
 import com.agh.as.master.model.RouteData;
 import com.agh.as.master.service.RoutingService;
@@ -30,5 +30,11 @@ public class RouteController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<RouteData> startCreatingRoute(@RequestBody CreateRouteForm createRouteForm) {
         return routingService.startCreatingRoute(createRouteForm);
+    }
+
+    @PostMapping("/agent/route")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> updateRouteInAgent(@RequestBody UpdateAgentRouteForm form) {
+        return routingService.updateRouteInAgent(form);
     }
 }

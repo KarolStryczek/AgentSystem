@@ -55,6 +55,10 @@ public class RunningAgentsService {
         return agentInstanceRepo.deleteAll().doOnNext(LogUtils::logDeleteEntity);
     }
 
+    Mono<AgentInstance> getAgentForNode(Integer start) {
+        return agentInstanceRepo.findByArea_Nodes_IdContains(start);
+    }
+
 
 
 

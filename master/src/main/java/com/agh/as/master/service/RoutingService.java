@@ -1,6 +1,8 @@
 package com.agh.as.master.service;
 
 import com.agh.as.master.consumer.AgentConsumer;
+import com.agh.as.master.dto.consumer.RegisterRouteForm;
+import com.agh.as.master.dto.request.UpdateAgentRouteForm;
 import com.agh.as.master.dto.request.CreateRouteForm;
 import com.agh.as.master.dto.request.UpdateRouteForm;
 import com.agh.as.master.model.Map;
@@ -12,12 +14,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.gateway.route.Route;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 @Slf4j
@@ -28,6 +28,7 @@ public class RoutingService {
 
     MapCache mapCache;
     RouteRepo routeRepo;
+    RunningAgentsService runningAgentsService;
     AgentConsumer agentConsumer;
 
 
@@ -36,7 +37,16 @@ public class RoutingService {
         Node closestTargetNode = findClosestNode(form.getTargetX(), form.getTargetY());
 
         RouteData routeData = RouteData.builder().start(closestStartNode).target(closestTargetNode).build();
-        return routeRepo.save(routeData);
+        RegisterRouteForm registerRouteForm = new RegisterRouteForm(closestStartNode.getId(), closestTargetNode.getId());
+        return routeRepo.save(routeData)
+                .doOnSuccess(routeD -> {
+                    LogUtils.logSaveEntity(routeD);
+                    registerRouteForm.setId(routeD.getId());
+                })
+                .flatMap(ignored -> runningAgentsService.getAgentForNode(closestStartNode.getId()))
+                .doOnSuccess(agent -> registerRouteForm.setCurrentAgent(agent.getInstanceId()))
+                .flatMap(agent -> agentConsumer.startRoute(agent.getInstanceHost(), agent.getInstanceId().toString(), registerRouteForm))
+                .thenReturn(routeData);
     }
 
     private Node findClosestNode(Float x, Float y) {
@@ -64,5 +74,10 @@ public class RoutingService {
                 .doOnSuccess(route -> route.setResult(form.getFinalRoute()))
                 .flatMap(routeRepo::save)
                 .doOnSuccess(LogUtils::logUpdateEntity);
+    }
+
+    public Mono<Void> updateRouteInAgent(UpdateAgentRouteForm form) {
+        return runningAgentsService.getAgentForNode(form.getSource())
+                .flatMap(agent -> agentConsumer.updateRoute(agent.getInstanceHost(), agent.getInstanceId().toString(), form));
     }
 }
