@@ -2,9 +2,11 @@ package com.agh.as.master.service;
 
 import com.agh.as.master.consumer.AgentConsumer;
 import com.agh.as.master.dto.consumer.AddAreaForm;
+import com.agh.as.master.dto.consumer.NeighborDto;
 import com.agh.as.master.dto.request.RegisterAgentForm;
 import com.agh.as.master.model.AgentInstance;
 import com.agh.as.master.model.Area;
+import com.agh.as.master.model.Node;
 import com.agh.as.master.repo.AgentInstanceRepo;
 import com.agh.as.master.utils.AreaAllocator;
 import com.agh.as.master.utils.LogUtils;
@@ -20,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -83,11 +86,34 @@ public class RunningAgentsService {
 
     private Mono<Void> setAreasToAgents(List<Area> areaList) {
         log.info("Start allocating agents to areas [{}]", areaList.toString());
-        List<AddAreaForm> addAreaForms = new ArrayList<>();
 
-        return getRunningAgentInstances().
+
+        return getRunningAgentInstances().collectList().flatMap(agentList -> assignAreasToAgents(areaList, agentList));
     }
 
-
+    private Mono<Void> assignAreasToAgents(List<Area> areaList, List<AgentInstance> agentList) {
+        List<AddAreaForm> addAreaForms = new ArrayList<>();
+        for (Area area: areaList) {
+            AddAreaForm areaForm = new AddAreaForm();
+            areaForm.setId(area.getAreaId());
+            areaForm.setNodes(area.getNodes().stream().map(Node::getId).collect(Collectors.toList()));
+            List<NeighborDto> neighbors = new ArrayList<>();
+            for (Node node: area.getNodes()) {
+                List<Area> neighbourAreas = areaList.stream().filter(a -> !a.getAreaId().equals(area.getAreaId())).filter(a -> a.getNodes().contains(node)).collect(Collectors.toList());
+                if (!neighbourAreas.isEmpty()) {
+                    for (Area neighbourArea: neighbourAreas) {
+                        neighbors.add(new NeighborDto(node.getId(), neighbourArea.getAreaId()));
+                    }
+                }
+            }
+            areaForm.setNeighbors(neighbors);
+            addAreaForms.add(areaForm);
+        }
+        return Flux.fromIterable(addAreaForms)
+                .doOnNext(addAreaForm -> {
+                    String host = agentList.stream().filter(agent -> agent.getInstanceId().equals(addAreaForm.getId())).findFirst().get().getInstanceHost();
+                    agentConsumer.setArea(host, addAreaForm).subscribe();
+                }).then();
+    }
 
 }

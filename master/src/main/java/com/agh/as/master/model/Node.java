@@ -20,7 +20,15 @@ public class Node {
         this.y = Float.valueOf(values[2]);
     }
 
-    public Node(String id, String areaNeighbour) {
+    public Node(String id) {
         this.id = Integer.valueOf(id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Node))
+            return false;
+        Node node = (Node) obj;
+        return (this.id.equals(node.getId()));
     }
 }
