@@ -33,8 +33,9 @@ public class AgentController extends GenericController {
     }
 
     @PostMapping("/route/start")
-    public List<NodeDto> startCalculateRoute(@RequestBody RegisterRouteForm form){
-        return routesService.startRoute(form);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void startCalculateRoute(@RequestBody RegisterRouteForm form){
+        routesService.startRoute(form);
     }
 
 }
