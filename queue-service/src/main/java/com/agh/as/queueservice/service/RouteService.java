@@ -35,7 +35,7 @@ public class RouteService {
 
     private Mono<Void> updateCurrentRouteAndSave(Route route, List<Node> newFragment, Integer newAgent) {
         route.getCurrentRoute().addAll(newFragment);
-        route.setCurrent(newFragment.get(0));
+        route.setCurrent(newFragment.get(newFragment.size()-1));
         route.setCurrentAgent(newAgent);
         return routeRepo.save(route).doOnSuccess(LogUtils::logSaveEntity).then();
     }
@@ -45,7 +45,7 @@ public class RouteService {
         route.setId(form.getId());
         route.setCurrentAgent(form.getCurrentAgent());
         route.setStart(new Node(form.getStartNode()));
-        route.setStart(new Node(form.getTargetNode()));
+        route.setTarget(new Node(form.getTargetNode()));
         route.setCurrent(new Node(form.getStartNode()));
 
         return routeRepo.save(route).doOnSuccess(LogUtils::logSaveEntity).then();
