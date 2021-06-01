@@ -54,7 +54,7 @@ public class RoutingService {
         Node result = null;
         double min = Float.MAX_VALUE;
         for (Node node: map.getNodes()) {
-            double current = Math.sqrt((node.getX()*node.getX()-x*x)+(node.getY()*node.getY()-y*y));
+            double current = Math.sqrt(Math.pow(node.getX()-x, 2) + Math.pow(node.getY()-y, 2));
             if (current < min) {
                 result = node;
                 min = current;
